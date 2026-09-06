@@ -22,9 +22,14 @@ async verifyHomePageLoaded()
 }
 async searchFor(keyword : string)
 {
-this.searchBox.click();
-this.searchBox.fill(keyword);
-this.searchBtn.click();
+    await this.searchBox.click();
+    await this.searchBox.fill(keyword);
+    await this.searchBtn.click();
+}
+async verifySearch(keyword : string)
+{
+    await expect(this.page).toHaveTitle(new RegExp(keyword, 'i'));
+    await expect(this.page).toHaveURL(new RegExp(keyword, 'i'));
 }
 
 }

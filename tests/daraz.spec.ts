@@ -11,8 +11,7 @@ test('TC-02: Search for Electronics Category',async ({page})=>{
     const homepage = new HomePage(page);
     await homepage.gotoHomePage();
     await homepage.searchFor('Electronics');
-    await expect(page).toHaveTitle(/Electronics/i);
-    await expect(page).toHaveURL(/electronics/i);
+    await homepage.verifySearch('Electronics')
 })
 
 
@@ -65,6 +64,13 @@ test('TC-04: Apply and verify for Price filter(500-5000)',async ({page})=>{
 
   await productPage.verifyProductPageLoaded();
   await productPage.verifyFreeShippingIfAvailable();
+});
+
+test('TC-08: Garbage Search shows no result', async ({ page }) => {
+const homepage = new HomePage(page);
+  await homepage.gotoHomePage();
+  await homepage.searchFor('sjsngsrnsrngrnur');
+  await expect(page.getByText(/search no result/i)).toBeVisible();
 });
     
      

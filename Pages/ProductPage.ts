@@ -11,6 +11,8 @@ export class ProductPage {
 
   async verifyProductPageLoaded() {
     await expect(this.page).toHaveURL(/\/products\/.*\.html/i);
+    await expect(this.page.getByRole('heading', { level: 1 })).toBeVisible();
+  await expect(this.page.getByText(/Rs\.\s?\d/).first()).toBeVisible(); 
   }
 
   async verifyFreeShippingIfAvailable() {

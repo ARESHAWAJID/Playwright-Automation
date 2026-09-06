@@ -23,7 +23,7 @@ export class SearchResultPage{
     async applyBrandFilter(brand : string)
     {
        const brandlink =  this.page.getByRole('link', { name: brand })
-       brandlink.click();
+        await brandlink.click();
     }
     async verifyBrandFilter(brand : string)
    {
