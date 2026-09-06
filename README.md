@@ -13,22 +13,26 @@ This project automates key end-to-end user workflows on Daraz.pk:
 - Product count validation
 - Product details page navigation
 - Free shipping availability check
+- No-results (empty state) search handling
 
 ## Tech Stack
 
 - **Playwright** — browser automation and test runner
 - **TypeScript** — typed test and page object code
 - **Page Object Model (POM)** — page logic separated from test logic for maintainability
+- **GitHub Actions** — CI pipeline that runs the suite on every push/PR
 
 ## Project Structure
 
 ```
 ├── tests/
 │   └── daraz.spec.ts        # All test cases (TC-01 to TC-08)
-├── pages/
+├── Pages/
 │   ├── HomePage.ts          # Homepage locators & actions
-│   ├── SearchResultPage.ts  # Search results, brand & price filters, product count
+│   ├── SearchResultPage.ts  # Search results, brand & price filters, product count, no-results check
 │   └── ProductPage.ts       # Product details page checks
+├── .github/workflows/
+│   └── playwright.yml       # CI workflow — runs tests on push/PR
 ├── playwright.config.ts     # Test runner configuration
 └── package.json
 ```
@@ -42,8 +46,8 @@ This project automates key end-to-end user workflows on Daraz.pk:
 
 1. Clone this repository:
    ```bash
-   git clone <your-repo-url>
-   cd daraz-playwright-automation
+   git clone https://github.com/ARESHAWAJID/Playwright-Automation.git
+   cd Playwright-Automation
    ```
 
 2. Install dependencies:
@@ -101,17 +105,20 @@ npx playwright show-report
 | TC-05 | Validates that filtered search results return more than zero products |
 | TC-06 | Opens a product from the results and verifies the details page loads |
 | TC-07 | Checks for a "Free Shipping" label on the product page, if available |
+| TC-08 | Searches for a gibberish keyword and verifies the "no results" empty state is shown |
 
 ## Configuration Notes
 
-- Tests currently run against **Chromium only**. Firefox and WebKit were disabled during development due to inconsistent load times against the live Daraz.pk site causing navigation timeouts. To re-enable other browsers, edit the `projects` array in `playwright.config.ts`.
-- Default test timeout is set to 60 seconds in `playwright.config.ts` to accommodate occasional slow loads on the live site.
+- Tests currently run against **Chromium only**. Firefox and WebKit were disabled during development due to inconsistent load times against the live Daraz.pk site causing navigation timeouts. To re-enable other browsers, uncomment the relevant entries in the `projects` array in `playwright.config.ts`.
+- Default test timeout is set to 120 seconds in `playwright.config.ts` to accommodate occasional slow loads on the live site.
 - `baseURL` is configured in `playwright.config.ts` as `https://www.daraz.pk`, so tests use relative paths (e.g. `page.goto('/')`).
+- A GitHub Actions workflow (`.github/workflows/playwright.yml`) runs the full suite automatically on every push and pull request to `main`/`master`, and uploads the HTML report as a build artifact.
 
 ## Known Limitations
 
-- Several tests currently reference a specific brand ("Anex") and product name. Since Daraz's inventory changes over time, these tests may need to be updated if that brand/product is no longer available.
-- Assertions rely on visible UI text (e.g. filter chips) rather than title tags, since Daraz's page titles were found to be inconsistent or contain typos across different pages.
+- Several tests reference a specific brand ("Anex") and product. Since Daraz's inventory changes over time, these tests may need to be updated if that brand/product is no longer available.
+- Assertions favor visible UI text (e.g. filter chips, "no results" messages) over page title tags, since Daraz's page titles were found to be inconsistent or contain typos across different pages.
+- Locators are built primarily on accessible roles/text rather than CSS classes, per Playwright's recommended best practices, to reduce breakage from front-end styling changes.
 
 ## Author
 
