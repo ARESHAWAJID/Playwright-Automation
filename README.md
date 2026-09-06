@@ -20,7 +20,7 @@ This project automates key end-to-end user workflows on Daraz.pk:
 - **Playwright** — browser automation and test runner
 - **TypeScript** — typed test and page object code
 - **Page Object Model (POM)** — page logic separated from test logic for maintainability
-- **GitHub Actions** — CI pipeline that runs the suite on every push/PR
+- **GitHub Actions** — CI pipeline for running the suite on demand
 
 ## Project Structure
 
@@ -32,7 +32,7 @@ This project automates key end-to-end user workflows on Daraz.pk:
 │   ├── SearchResultPage.ts  # Search results, brand & price filters, product count, no-results check
 │   └── ProductPage.ts       # Product details page checks
 ├── .github/workflows/
-│   └── playwright.yml       # CI workflow — runs tests on push/PR
+│   └── playwright.yml       # CI workflow — manually triggered (see Configuration Notes)
 ├── playwright.config.ts     # Test runner configuration
 └── package.json
 ```
@@ -112,10 +112,11 @@ npx playwright show-report
 - Tests currently run against **Chromium only**. Firefox and WebKit were disabled during development due to inconsistent load times against the live Daraz.pk site causing navigation timeouts. To re-enable other browsers, uncomment the relevant entries in the `projects` array in `playwright.config.ts`.
 - Default test timeout is set to 120 seconds in `playwright.config.ts` to accommodate occasional slow loads on the live site.
 - `baseURL` is configured in `playwright.config.ts` as `https://www.daraz.pk`, so tests use relative paths (e.g. `page.goto('/')`).
-- A GitHub Actions workflow (`.github/workflows/playwright.yml`) runs the full suite automatically on every push and pull request to `main`/`master`, and uploads the HTML report as a build artifact.
+- A GitHub Actions workflow (`.github/workflows/playwright.yml`) is included and can be run manually from the **Actions** tab (**Run workflow**). It's set to manual trigger (`workflow_dispatch`) rather than running on every push/PR, since Daraz.pk's anti-bot verification system tends to block traffic from GitHub-hosted runners' shared IPs — see Known Limitations below.
 
 ## Known Limitations
 
+- **Anti-bot detection on shared cloud IPs.** Daraz.pk (part of Alibaba Group) uses a bot-detection/verification system ("Baxia") that can present a blocking verification overlay to traffic from datacenter IP ranges, such as GitHub Actions runners. This is a security measure on Daraz's side, not a defect in the test suite — the same tests run reliably against a normal residential IP (e.g. locally). For this reason, local execution (`npx playwright test`) is the primary way to verify this suite, and the CI workflow is set to manual trigger rather than auto-running on every commit.
 - Several tests reference a specific brand ("Anex") and product. Since Daraz's inventory changes over time, these tests may need to be updated if that brand/product is no longer available.
 - Assertions favor visible UI text (e.g. filter chips, "no results" messages) over page title tags, since Daraz's page titles were found to be inconsistent or contain typos across different pages.
 - Locators are built primarily on accessible roles/text rather than CSS classes, per Playwright's recommended best practices, to reduce breakage from front-end styling changes.
